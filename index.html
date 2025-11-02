@@ -2423,25 +2423,32 @@
             
             // Salvar credenciais se "lembrar login" estiver marcado (APÓS login bem-sucedido)
             const rememberCheckbox = document.getElementById('rememberLogin');
-            console.log('🔍 Estado do checkbox "Lembrar dados":', {
-              existe: !!rememberCheckbox,
-              marcado: rememberCheckbox ? rememberCheckbox.checked : 'N/A'
-            });
+            log('🔍 Verificando checkbox "Lembrar dados"...');
+            log('   Checkbox existe:', !!rememberCheckbox);
+            log('   Checkbox marcado:', rememberCheckbox ? rememberCheckbox.checked : 'N/A');
             
             if (rememberCheckbox && rememberCheckbox.checked) {
-              console.log('💾 Salvando credenciais para login automático...');
-              localStorage.setItem('nutrix-remember-login', 'true');
-              localStorage.setItem('nutrix-saved-email', username);
-              localStorage.setItem('nutrix-saved-password', btoa(password));
+              log('💾 Salvando credenciais para login automático...');
               
-              // Confirmar salvamento
-              console.log('✅ Credenciais salvas:', {
-                rememberLogin: localStorage.getItem('nutrix-remember-login'),
-                email: localStorage.getItem('nutrix-saved-email'),
-                senhaSalva: !!localStorage.getItem('nutrix-saved-password')
-              });
+              try {
+                localStorage.setItem('nutrix-remember-login', 'true');
+                localStorage.setItem('nutrix-saved-email', username);
+                localStorage.setItem('nutrix-saved-password', btoa(password));
+                
+                // Confirmar salvamento
+                const savedRemember = localStorage.getItem('nutrix-remember-login');
+                const savedEmail = localStorage.getItem('nutrix-saved-email');
+                const savedPassword = localStorage.getItem('nutrix-saved-password');
+                
+                log('✅ Credenciais salvas com sucesso!');
+                log('   rememberLogin:', savedRemember);
+                log('   email:', savedEmail);
+                log('   senha (encriptada):', savedPassword ? savedPassword.substring(0, 10) + '...' : 'NULL');
+              } catch(saveError) {
+                console.error('❌ ERRO ao salvar credenciais:', saveError);
+              }
             } else {
-              console.log('🔓 Checkbox desmarcado ou não encontrado. Removendo credenciais...');
+              log('🔓 Checkbox desmarcado ou não encontrado. Removendo credenciais...');
               localStorage.removeItem('nutrix-remember-login');
               localStorage.removeItem('nutrix-saved-email');
               localStorage.removeItem('nutrix-saved-password');
