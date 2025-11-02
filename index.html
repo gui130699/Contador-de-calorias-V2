@@ -2423,12 +2423,12 @@
             
             // Salvar credenciais se "lembrar login" estiver marcado (APÓS login bem-sucedido)
             const rememberCheckbox = document.getElementById('rememberLogin');
-            log('🔍 Verificando checkbox "Lembrar dados"...');
-            log('   Checkbox existe:', !!rememberCheckbox);
-            log('   Checkbox marcado:', rememberCheckbox ? rememberCheckbox.checked : 'N/A');
+            console.log('🔍 Verificando checkbox "Lembrar dados"...');
+            console.log('   Checkbox existe:', !!rememberCheckbox);
+            console.log('   Checkbox marcado:', rememberCheckbox ? rememberCheckbox.checked : 'N/A');
             
             if (rememberCheckbox && rememberCheckbox.checked) {
-              log('💾 Salvando credenciais para login automático...');
+              console.log('💾 Checkbox MARCADO! Salvando credenciais...');
               
               try {
                 localStorage.setItem('nutrix-remember-login', 'true');
@@ -2440,15 +2440,16 @@
                 const savedEmail = localStorage.getItem('nutrix-saved-email');
                 const savedPassword = localStorage.getItem('nutrix-saved-password');
                 
-                log('✅ Credenciais salvas com sucesso!');
-                log('   rememberLogin:', savedRemember);
-                log('   email:', savedEmail);
-                log('   senha (encriptada):', savedPassword ? savedPassword.substring(0, 10) + '...' : 'NULL');
+                console.log('✅ CREDENCIAIS SALVAS COM SUCESSO!');
+                console.log('   rememberLogin:', savedRemember);
+                console.log('   email:', savedEmail);
+                console.log('   senha salva:', savedPassword ? 'SIM (len=' + savedPassword.length + ')' : 'NÃO');
               } catch(saveError) {
                 console.error('❌ ERRO ao salvar credenciais:', saveError);
               }
             } else {
-              log('🔓 Checkbox desmarcado ou não encontrado. Removendo credenciais...');
+              console.log('🔓 Checkbox DESMARCADO ou não encontrado');
+              console.log('   Removendo credenciais...');
               localStorage.removeItem('nutrix-remember-login');
               localStorage.removeItem('nutrix-saved-email');
               localStorage.removeItem('nutrix-saved-password');
