@@ -1,4 +1,4 @@
-const CACHE_NAME = 'nutrix-v12';
+const CACHE_NAME = 'nutrix-v13';
 
 // Detectar base path automaticamente
 const BASE_PATH = self.location.pathname.replace('/sw.js', '');

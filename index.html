@@ -2386,6 +2386,20 @@
             
             localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(currentUser));
             
+            // Salvar credenciais se "lembrar login" estiver marcado (APÓS login bem-sucedido)
+            const rememberCheckbox = document.getElementById('rememberLogin');
+            if (rememberCheckbox && rememberCheckbox.checked) {
+              console.log('💾 Salvando credenciais para login automático...');
+              localStorage.setItem('nutrix-remember-login', 'true');
+              localStorage.setItem('nutrix-saved-email', username);
+              localStorage.setItem('nutrix-saved-password', btoa(password));
+            } else {
+              console.log('🔓 Removendo credenciais salvas (lembrar desmarcado)');
+              localStorage.removeItem('nutrix-remember-login');
+              localStorage.removeItem('nutrix-saved-email');
+              localStorage.removeItem('nutrix-saved-password');
+            }
+            
             showAuthMessage('✅ Login bem-sucedido!', 'success');
             
             setTimeout(async () => {
@@ -3217,19 +3231,9 @@
       e.preventDefault();
       const username = document.getElementById('loginUsername').value;
       const password = document.getElementById('loginPassword').value;
-      const rememberLogin = document.getElementById('rememberLogin').checked;
       
-      // Salvar credenciais se "lembrar login" estiver marcado
-      if (rememberLogin) {
-        localStorage.setItem('nutrix-remember-login', 'true');
-        localStorage.setItem('nutrix-saved-email', username);
-        localStorage.setItem('nutrix-saved-password', btoa(password)); // Criptografar básico
-      } else {
-        localStorage.removeItem('nutrix-remember-login');
-        localStorage.removeItem('nutrix-saved-email');
-        localStorage.removeItem('nutrix-saved-password');
-      }
-      
+      // A lógica de salvar credenciais foi movida para dentro da função login()
+      // para garantir que só salva APÓS login bem-sucedido
       login(username, password);
     });
     
