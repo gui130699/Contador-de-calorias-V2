@@ -1631,14 +1631,17 @@
       window.addEventListener('load', () => {
         console.log('📦 Registrando Service Worker...');
         
-        // Detectar base path automaticamente
-        const basePath = document.querySelector('base')?.href || window.location.pathname.replace(/\/[^/]*$/, '');
-        const swPath = `${basePath}/sw.js`.replace(/\/\//g, '/');
+        // Detectar base path automaticamente (com / no final)
+        let basePath = window.location.pathname.replace(/\/[^/]*$/, '');
+        if (!basePath.endsWith('/')) basePath += '/';
+        if (basePath === '/') basePath = './';
+        
+        const swPath = `${basePath}sw.js`;
         
         console.log('   Base path:', basePath);
         console.log('   SW path:', swPath);
         
-        navigator.serviceWorker.register(swPath, { scope: basePath || '/' })
+        navigator.serviceWorker.register(swPath, { scope: basePath })
           .then(registration => {
             console.log('✅ Service Worker registrado:', registration.scope);
             console.log('   Estado:', registration.active ? 'Ativo' : 'Aguardando');
