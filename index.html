@@ -2073,14 +2073,67 @@
         try {
           currentUser = JSON.parse(savedUser);
           
-          // Se tem usuário local mas sem sessão Supabase, fazer logout
+          // Se tem usuário local mas sem sessão Supabase, tentar login automático
           if (currentUser.supabaseId && !currentUser.isDemo) {
-            console.log('⚠️ Sessão Supabase expirada. Faça login novamente.');
-            localStorage.removeItem(CURRENT_USER_KEY);
-            currentUser = null;
-            showAuthScreen();
-            showAuthMessage('⚠️ Sua sessão expirou. Faça login novamente.', 'warning');
-            return false;
+            console.log('⚠️ Sessão Supabase expirada. Verificando login automático...');
+            
+            // Verificar se tem credenciais salvas para login automático
+            const rememberLogin = localStorage.getItem('nutrix-remember-login');
+            const savedEmail = localStorage.getItem('nutrix-saved-email');
+            const savedPassword = localStorage.getItem('nutrix-saved-password');
+            
+            if (rememberLogin === 'true' && savedEmail && savedPassword) {
+              console.log('🔄 Fazendo login automático com credenciais salvas...');
+              try {
+                const decodedPassword = atob(savedPassword);
+                const { data, error } = await supabase.auth.signInWithPassword({
+                  email: savedEmail,
+                  password: decodedPassword
+                });
+                
+                if (error) throw error;
+                
+                if (data.user) {
+                  console.log('✅ Login automático realizado com sucesso!');
+                  currentUser = {
+                    id: data.user.id,
+                    name: data.user.user_metadata?.name || data.user.email.split('@')[0],
+                    email: data.user.email,
+                    createdAt: data.user.created_at,
+                    isDemo: false,
+                    supabaseId: data.user.id,
+                    session: data.session
+                  };
+                  
+                  localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(currentUser));
+                  
+                  showMainApp();
+                  updateUserGreeting();
+                  updateProfileInfo();
+                  await syncFromSupabase();
+                  return true;
+                }
+              } catch(autoLoginError) {
+                console.error('❌ Erro no login automático:', autoLoginError);
+                // Se falhar, limpar dados e pedir login manual
+                localStorage.removeItem(CURRENT_USER_KEY);
+                localStorage.removeItem('nutrix-remember-login');
+                localStorage.removeItem('nutrix-saved-email');
+                localStorage.removeItem('nutrix-saved-password');
+                currentUser = null;
+                showAuthScreen();
+                showAuthMessage('⚠️ Não foi possível fazer login automático. Faça login novamente.', 'warning');
+                return false;
+              }
+            } else {
+              // Sem credenciais salvas, pedir login
+              console.log('ℹ️ Sem credenciais salvas. Mostrando tela de login...');
+              localStorage.removeItem(CURRENT_USER_KEY);
+              currentUser = null;
+              showAuthScreen();
+              showAuthMessage('⚠️ Sua sessão expirou. Faça login novamente.', 'warning');
+              return false;
+            }
           }
           
           console.log('✅ Usuário encontrado:', currentUser.email);
